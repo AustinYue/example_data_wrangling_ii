@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1508954787290.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D8D37BE8",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1508954787290,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "341BF7CE",
+        "caption" : "data_marj",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=data_marj&cache_key=341BF7CE",
+        "displayedObservations" : 510,
+        "environment" : "",
+        "object" : "data_marj",
+        "preview" : 0,
+        "totalObservations" : 510,
+        "variables" : 4
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

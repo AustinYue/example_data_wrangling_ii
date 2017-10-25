@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"strings and factors\"\nauthor: \"Leiyu Yue\"\ndate: \"10/25/2017\"\noutput: html_document\n---\n\n```{r setup, include=FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n```{r}\nlibrary(tidyverse)\nlibrary(janitor)\nlibrary(haven)\nlibrary(rvest)\nlibrary(stringr)\nlibrary(forcats)\ntheme_set(theme_bw())\ntheme_update(legend.position = \"bottom\")\n```\n\n```{r}\npulse_data = read_sas(\"./data/public_pulse_data.sas7bdat\") %>%\n  clean_names() %>%\n  gather(key = visit, value = bdi, bdiscore_bl:bdiscore_12m) %>%\n  mutate(visit = str_replace(visit, \"bdiscore_\", \"\"),\n         visit = str_replace(visit, \"bl\", \"00m\"),\n         visit = fct_relevel(visit, str_c(c(\"00\", \"01\", \"06\", \"12\"), \"m\"))) %>%\n  arrange(id, visit)\n```\n\n## NSDUH\n```{r}\nurl = \"http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm\"\ndrug_use_xml = read_html(url)\n\ntable_marj = (drug_use_xml %>% html_nodes(css = \"table\"))[[1]] %>%\n  html_table() %>%\n  .[-1,] %>%\n  as_tibble()\n```\n\n```{r}\ndata_marj = \n  table_marj %>%\n  select(-contains(\"P Value\")) %>%\n  gather(key = key, value = percent, -State) %>%\n  separate(key, into = c(\"age\", \"year\"), sep = \"\\\\(\") %>%\n  mutate(year = str_sub(year, 1, -2),\n         percent = str_replace(percent, \"[a-z]\", \"\"),\n         percent = as.numeric(percent)) %>%\n  filter(!(State %in% c(\"Total U.S.\", \"Northeast\", \"Midwest\", \"South\", \"West\")))\n```\n\n```{r}\ndata_marj %>%\n  filter(age == \"12-17\") %>% \n  mutate(State = fct_reorder(State, percent)) %>% # pull(State) %>% as.numeric() %>% \n  ggplot(aes(x = State, y = percent, color = year)) + \n    geom_point() + \n    theme(axis.text.x = element_text(angle = 90, hjust = 1))\n```\n\n### BMI\n```{r}\nins1 = c(1.53, 1.61, 3.75, 2.89, 3.26)\nins2 = c(3.15, 3.96, 3.59, 1.89, 1.45, 1.56)\nins3 = c(3.89, 3.68, 5.70, 5.62, 5.79, 5.33)\nins4 = c(8.18, 5.64, 7.36, 5.33, 8.82, 5.26, 7.10)\nins5 = c(5.86, 5.46, 5.69, 6.49, 7.81, 9.03, 7.49, 8.98)\n\nbmi_data = data_frame(\n    insulin = c(ins1, ins2, ins3, ins4, ins5),\n    ind = c(rep(1, length(ins1)),\n                    rep(2, length(ins2)),\n                    rep(3, length(ins3)),\n                    rep(4, length(ins4)),\n                    rep(5, length(ins5)))\n)\n```\n\n```{r}\nbmi_data = bmi_data %>% \n  mutate(ind = factor(ind), \n         ind = fct_recode(ind,\n                          \"level_1\" = \"1\",\n                          \"level_2\" = \"2\",\n                          \"level_3\" = \"3\",\n                          \"level_4\" = \"4\",\n                          \"level_5\" = \"5\")\n         )\nbmi_data %>% \n  ggplot(aes(x = ind, y = insulin)) + geom_boxplot()\n```\n\n```{r}\nbmi_data %>% \n  lm(insulin ~ ind, data = .) %>% \n  broom::tidy() %>% \n  select(-std.error, -statistic) %>% \n  knitr::kable(digits = 3)\n```\n\n```{r}\nbmi_data = bmi_data %>% \n  mutate(ind = fct_recode(ind,\n                          \"very_low\"  = \"level_1\",\n                          \"low\"       = \"level_2\",\n                          \"neutral\"   = \"level_3\",\n                          \"high\"      = \"level_4\",\n                          \"very_high\" = \"level_5\"),\n         ind = fct_relevel(ind, \"neutral\"))\n\nbmi_data %>% \n  lm(insulin ~ ind, data = .) %>% \n  ggplot(aes(x = ind, y = insulin)) + geom_boxplot()\n```\n\n",
+    "created" : 1508953151401.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "956431501",
+    "id" : "97E6A982",
+    "lastKnownWriteTime" : 1508957865,
+    "last_content_update" : 1508957865592,
+    "path" : "~/Documents/School/DSI/example_data_wrangling_ii/Untitled.Rmd",
+    "project_path" : "Untitled.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

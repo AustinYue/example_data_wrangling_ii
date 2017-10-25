@@ -1,0 +1,100 @@
+---
+title: "example_data_wrangling_ii"
+author: "Leiyu Yue"
+date: "10/23/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(httr)
+library(rvest)
+```
+
+
+
+```{r}
+table_marj = (drug_use_xml %>%
+  html_nodes(css = "table"))[[1]] %>% 
+  html_table() %>% 
+  .[-1,] %>% 
+  as_tibble()
+```
+
+```{r}
+url = "https://www.bestplaces.net/cost_of_living/city/new_york/new_york"
+
+cost_of_living = read_html(url)
+```
+
+```{r}
+(cost_of_living %>% html_nodes(css = "table"))[[2]] %>% 
+  html_table(header = TRUE)
+```
+
+### HP_SS Cast
+
+I want the names
+```{r}
+url ="http://www.imdb.com/title/tt0241527/"
+hpss_xml = read_html(url)
+
+hpss_cast = hpss_xml %>% 
+  html_nodes(css = ".itemprop .itemprop") %>% 
+  html_text()
+```
+
+### toothbrush reviews
+```{r}
+url = "https://www.amazon.com/Philips-Sonicare-rechargeable-toothbrush-HX6211/product-reviews/B00YAR7ZFM/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&pageNumber=1"
+
+toothbrush_xml = read_html(url)
+
+toothbrush_titles = toothbrush_xml %>% 
+  html_nodes(css = "#cm_cr-review_list .a-color-base") %>% 
+  html_text()
+
+toothbrush_stars = toothbrush_xml %>% 
+  html_nodes(css = "#cm_cr-review_list .review-rating") %>% 
+  html_text()
+
+toothbrush_df = data_frame(
+  title = toothbrush_titles,
+  stars = toothbrush_stars
+)
+```
+
+
+## APIs
+
+```{r}
+ nyc_water = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.csv") %>% 
+  content("parsed")
+```
+
+getting the same data of JSON
+
+```{r}
+nyc_water = GET("https://data.cityofnewyork.us/resource/waf7-5gvc.json") %>% 
+  content("text") %>%
+  jsonlite::fromJSON() %>%
+  as_tibble()
+```
+
+```{r}
+brfss = 
+  GET("https://chronicdata.cdc.gov/api/views/hn4x-zwk7/rows.csv?accessType=DOWNLOAD") %>% 
+  content("parsed")
+```
+
+### catch the pokemon
+```{r}
+poke = GET("http://pokeapi.co/api/v2/pokemon/1") %>%
+  content()
+names(poke)
+```
+
